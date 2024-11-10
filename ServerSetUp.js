@@ -3,6 +3,7 @@ import mongoose from "mongoose"; //ODM (Object Data Modeling) library for MongoD
 import cors from 'cors'
 import dotenv from 'dotenv'
 import route from './route.js';
+import cookieParser from 'cookie-parser'; // if the frontend use cookies for storing jwt
 
 class ServerSetUp {
     constructor() {
@@ -21,6 +22,7 @@ class ServerSetUp {
          * The instance method 'this.connectServer()' will be automatically called when the instance of the dependant class is created
          */
         this.connectServer();
+        this.allowedOrigins = [`${process.env.ORIGIN}`]; //frontend url
     }
 
     async connectDatabase() {
@@ -39,7 +41,17 @@ class ServerSetUp {
 
             // middlewares
             app.use(express.json()); // parses incoming JSON requests
-            app.use(cors()); // enables CORS for the application
+            app.use(cors({ 
+                origin: (origin, callback) => {
+                    if (this.allowedOrigins.indexOf(origin) !== -1 || !origin) {
+                        // Allow requests with no origin (like mobile apps or curl requests)
+                        callback(null, true);
+                    } else {
+                        callback(new Error('Not allowed by CORS'));
+                    }
+                },
+                credentials: true,
+            })); // enables CORS for the application
             app.use("/api", route); // Sets up routing for the API
 
             app.listen(this.PORT || 3000, `0.0.0.0`, () => { // put '0.0.0.0' to accept incoming connections on all available network interfaces (server accessibility)
