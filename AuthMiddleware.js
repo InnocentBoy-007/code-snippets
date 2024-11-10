@@ -13,3 +13,10 @@ export const authMiddleware = (req, res, next) => {
         res.status(400).json({ message: 'Invalid token.' });
     }
 };
+
+
+// route
+// Other protected routes would use the authMiddleware
+route.get("/protectedRoute", authMiddleware, (req, res) => {
+    res.send("You have access to this protected route.");
+});
