@@ -22,7 +22,7 @@ class ServerSetUp {
          * The instance method 'this.connectServer()' will be automatically called when the instance of the dependant class is created
          */
         this.connectServer();
-        this.allowedOrigins = [`${process.env.ORIGIN}`]; //frontend url
+        this.allowedOrigins = [process.env.ORIGIN1, process.env.ORIGIN2]; //multiple frontend urls
     }
 
     async connectDatabase() {
