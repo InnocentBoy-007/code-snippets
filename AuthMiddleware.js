@@ -1,22 +1,19 @@
 import jwt from 'jsonwebtoken';
 
 export const authMiddleware = (req, res, next) => {
-    const token = req.cookies.adminToken; // since I'm using cookies
-
-    if (!token) return res.status(401).json({ message: 'Access denied. No token provided.' });
+    const adminToken = req.cookies.adminToken; // for admins
+    const clientToken = req.cookies.clientToken; // for clients
+    if (!adminToken) return res.status(401).json({ message: 'Access denied. No admin token provided.' });
+    if (!clientToken) return res.status(401).json({ message: 'Access denied. No client token provided.' });
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.admin = decoded; // Attach decoded payload (e.g., adminId) to request
+        const adminTokenDecoded = jwt.verify(adminToken, process.env.JWT_SECRET);
+        req.admin = adminTokenDecoded;
+
+        const clientTokenDecoded = jwt.verify(clientToken, process.env.JWT_SECRET);
+        req.client = clientTokenDecoded;
         next();
     } catch (err) {
         res.status(400).json({ message: 'Invalid token.' });
     }
 };
-
-
-// route
-// Other protected routes would use the authMiddleware
-route.get("/protectedRoute", authMiddleware, (req, res) => {
-    res.send("You have access to this protected route.");
-});
